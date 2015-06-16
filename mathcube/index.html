@@ -1,0 +1,397 @@
+<!doctype html> 
+<html lang="en"> 
+<head> 
+	<meta charset="UTF-8" />
+    <title>Math Cube</title>
+	<script type="text/javascript" src="js/phaser.js"></script>
+    <style type="text/css">
+        body {
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Math Cube</h1>
+
+<script type="text/javascript">
+
+var game = new Phaser.Game(800, 600, Phaser.AUTO, 'MathCube');
+
+var text_style = {
+	font: "20px Arial", 
+	fill: "#00ff00", 
+	align: "center"
+}
+var text_style_big = {
+	font: "36px Arial", 
+	fill: "#00ff00", 
+	align: "center"
+}
+
+// Entity ENUMS
+var ENT_BOX = 0;
+var ENT_GOAL = 1;
+var ENT_TEXT = 2;
+var BACKGROUND = 3;
+var ENT_WALL = 4;
+var ENT_NUM = 5;
+var ENT_OP = 6;
+
+//Game Constants
+var BOX_SIZE = 64;
+var BOX_SPEED = 256;
+
+//Vars
+var box;
+var boxg;
+var numg;
+var leveldata;
+var levels;
+var info;
+var goal;
+var goalg;
+var angle_line;
+var ptr;
+var op = "";
+var localStorage
+var wallgr;
+var pmp = 0;
+var mdp = 0;
+var level;
+var maxpm = 16; //Number of pm levels
+var maxmd = 16; //Number of md levels
+
+
+
+var load_state = {
+	
+	preload: function() {
+		game.load.image('box', 'res/thebox.png');
+		game.load.spritesheet('button','res/starts.png',200, 200);
+		game.load.spritesheet('64button','res/6464.png',64, 64);
+		
+		try {
+			localStorage = 'localStorage' in window && window['localStorage'] !== null;
+			pmp = localStorage.getItem("pmp");
+			mdp = localStorage.getItem("mdp");
+			console.log (	localStorage);
+		} catch (e) {
+			// nothing
+		}
+	},
+		
+	create: function(){
+		game.add.text(game.world.centerX,game.world.centerY,"Loading...", text_style);
+		this.game.state.start('menu');
+	}
+	
+}
+
+var menu_state = {
+	
+	create: function(){
+		this.game.stage.backgroundColor = '#0000dd';	
+		var t = game.add.text(-500,game.world.centerY-200, 'Math Cube', text_style_big);
+		var tt = game.add.text(-500,game.world.centerY-100, 'Select Difficulty', text_style);
+		game.add.tween(t).to({ x: game.world.centerX-100 }, 200, Phaser.Easing.Linear.None)
+			.start();
+		game.add.tween(tt).to({ x: game.world.centerX-100 }, 200, Phaser.Easing.Linear.None)
+			.start();
+		button1 = game.add.button(game.world.centerX - 300, 1000, 'button', function() { diff = 0; game.state.start('level');}, this, 0,0,0,0);
+		button2 = game.add.button(game.world.centerX + 100, 1000, 'button', function() { diff = 1; game.state.start('level');}, this, 1,1,1,1);
+		game.add.tween(button1).to({ y: game.world.centerY}, 1000, Phaser.Easing.Linear.None)
+			.start();
+		game.add.tween(button2).to({ y: game.world.centerY}, 1000, Phaser.Easing.Linear.None)
+			.start();
+		game.input.keyboard.addCallbacks(this,null,null,function(key) { if( key == 'q') {op = ""; game.state.start('menu');}} );
+	}
+	
+	
+}
+
+// Necessary to get around javascript dynamic environment (#FPisTheFuture)
+function level_handler( i,dmax ){
+	return function(){
+		if( i <= dmax)
+			loadScript(i+1);
+		else
+			return;
+	}
+}
+
+var level_state = {
+	
+	create: function(){
+		this.game.stage.backgroundColor = '#dd00dd';	
+		var tt = game.add.text(-500,game.world.centerY-200, 'Select Level', text_style_big);
+		game.add.tween(tt).to({ x: game.world.centerX-100 }, 200, Phaser.Easing.Linear.None)
+			.start();	
+		var max;
+		var dmax;
+		if( diff ==  0 ){
+			max = maxpm;
+			dmax = pmp;
+		}
+		else{
+			max = maxmd;
+			dmax = mdp;
+		}
+		for( var i = 0; i < max; i++ ){
+			var px = game.world.centerX - 320 + ( (i % 10) * 64);
+			var py = game.world.centerY + Math.floor( (i/10)) * 64;
+			var b = game.add.button( -64, py, '64button', level_handler( i,dmax ), this, 0,1,0,0);
+			game.add.tween(b).to({ x: px }, 400 + (50 * i), Phaser.Easing.Linear.None)
+			.start();
+			if (i > dmax)
+				b.tint = '#dddddd';
+			var t = game.add.text(0,0,""+(i+1), text_style_big);
+			t.anchor.setTo(-.2,-.1);
+			b.addChild(t);
+			
+		}
+	
+	}
+	
+}
+
+var play_state = {
+	
+	preload: function() {
+	},
+	
+	create: function(){
+		op = "";
+		wallgr = game.add.group();
+		wallgr.enableBody = true;
+		numg = game.add.group();
+		numg.enableBody = true;
+		opg = game.add.group();
+		opg.enableBody = true;
+		game.physics.startSystem(Phaser.Physics.ARCADE);
+		info.forEach( processObj );
+		game.input.onDown.add( function(pointer) {
+			console.log(box.body.velocity);
+			if( box.body.velocity.x == 0 && box.body.velocity.y == 0){
+				ptr = pointer;
+				angle_line = new Phaser.Line(boxg.position.x, boxg.position.y, pointer.x,pointer.y);
+			}
+			},this);
+		game.input.onUp.add( function(pointer) {
+			if( box.body.velocity.x == 0 && box.body.velocity.y == 0 ){
+				var ang = Math.atan2(ptr.y-boxg.position.y,ptr.x-boxg.position.x ) + Math.PI;
+				box.body.velocity.x = BOX_SPEED * Math.cos(ang);;
+				box.body.velocity.y = BOX_SPEED * Math.sin(ang);
+				angle_line = null;
+			}
+			},this);
+	},
+		
+	update: function(){
+		
+		//Physics checks
+		game.physics.arcade.collide(box, wallgr);
+		game.physics.arcade.overlap(box, goal, complete, null, this);
+		game.physics.arcade.overlap(box, numg, add, null, this);
+		game.physics.arcade.overlap(box, opg, opper, null, this);
+		
+		if( angle_line != null ){
+			angle_line = new Phaser.Line(boxg.position.x, boxg.position.y, ptr.x,ptr.y);
+		}
+		boxg.x = box.position.x + 32;
+		boxg.y = box.position.y + 32;
+		
+	},
+	
+	render: function(){
+		 game.debug.geom(angle_line);
+	}
+	
+}
+
+function gameOver(){
+	doPlay();
+}
+
+function add(b,n){
+	if( op == "+"  )
+		b.val = b.val + n.val;
+	else if( op ==  "-"  )
+		b.val = b.val - n.val;
+	else if( op ==  "*"  )
+		b.val = b.val * n.val;
+	else if( op  == "/"  )
+		b.val = b.val / n.val;
+	else
+		gameOver();
+	op = "";
+	b.text.setText( b.val );
+	n.text.kill();
+	n.kill();
+	
+}
+
+function opper(b,n){
+	op = n.val;
+	b.text.setText( b.val + op );
+	n.text.kill();
+	n.kill();
+	
+}
+
+function processObj( obj ){
+	if( obj.type == ENT_BOX){
+		box = game.add.sprite( obj.x - BOX_SIZE / 2,obj.y- BOX_SIZE / 2,'box');
+		game.physics.arcade.enable(box);
+		box.scale.setTo(BOX_SIZE, BOX_SIZE);
+		box.checkWorldBounds = true;
+		box.events.onOutOfBounds.add(gameOver, this);
+		box.body.bounce.x = 1;
+		box.body.bounce.y = 1;
+		
+		boxg = game.add.group();
+		boxg.x = obj.x + 32;
+		boxg.y = obj.y + 32;
+		
+		box.val = obj.val;
+		box.text = game.add.text(0,0,""+box.val, text_style_big);
+		box.text.anchor.setTo(.5,.5);
+		boxg.addChild(box.text);
+		
+	} 
+	else if( obj.type == ENT_GOAL){
+		goal = game.add.sprite( obj.x - BOX_SIZE / 4,obj.y - BOX_SIZE / 4,'box'	);
+		game.physics.arcade.enable(goal);
+		goal.scale.setTo(BOX_SIZE / 2, BOX_SIZE / 2);
+		goal.tint = 0x3D3D5C;
+		
+		goalg = game.add.group();
+		goalg.x = obj.x;
+		goalg.y = obj.y;
+		goalg.enableBody = true;
+		
+		goal.val = obj.val;
+		goal.text = game.add.text(0,0,""+goal.val, text_style);
+		goal.text.anchor.setTo(.5,.5);
+		goalg.addChild(goal.text);
+		}
+	else if (obj.type == ENT_WALL){
+		var drawnObject;
+		var bmd = game.add.bitmapData(obj.w, obj.l);
+ 
+		bmd.ctx.beginPath();
+		bmd.ctx.rect(0, 0, obj.w, obj.l);
+		bmd.ctx.fillStyle = '#ffffff';
+		bmd.ctx.fill();
+		drawnObject = wallgr.create(obj.x, obj.y, bmd);
+		drawnObject.anchor.setTo(0.5, 0.5);
+		drawnObject.body.immovable = true;
+		} 
+	else if (obj.type == ENT_NUM){
+		
+		var num = numg.create( obj.x - BOX_SIZE / 4,obj.y - BOX_SIZE / 4,'box');
+		game.physics.arcade.enable(num);
+		num.scale.setTo(BOX_SIZE / 2, BOX_SIZE / 2);
+		num.tint = "#00dddd"
+		num.body.immovable = true;
+			
+		var tempg = game.add.group();
+		tempg.x = obj.x;
+		tempg.y = obj.y;
+		tempg.enableBody = true;
+		
+		num.val = obj.val;
+		num.text = game.add.text(0,0,""+num.val, text_style);
+		num.text.anchor.setTo(.5,.5);
+		tempg.addChild(num.text);
+			
+	}
+	
+	else if (obj.type == ENT_OP){
+		
+		var num = opg.create( obj.x - BOX_SIZE / 4,obj.y - BOX_SIZE / 4,'box');
+		game.physics.arcade.enable(num);
+		num.scale.setTo(BOX_SIZE / 2, BOX_SIZE / 2);
+		num.tint = "ff0000";
+		num.body.immovable = true;
+			
+		var tempg = game.add.group();
+		tempg.x = obj.x;
+		tempg.y = obj.y;
+		tempg.enableBody = true;
+		
+		num.val = obj.val;
+		num.text = game.add.text(0,0,""+num.val, text_style);
+		num.text.anchor.setTo(.5,.5);
+		tempg.addChild(num.text);
+			
+	}
+	else if( obj.type == ENT_TEXT){
+			game.add.text(obj.x,obj.y,obj.val, text_style);
+		} 
+	else if( obj.type == BACKGROUND){
+			this.game.stage.backgroundColor = obj.val;	
+		}
+	else{
+		console.log("ERROR: Unrecognized entity");
+	}
+}
+
+function doPlay(){
+	game.state.start('play');
+}
+
+function complete(){
+	if( box.val == goal.val){
+		//NextLevelPhase
+		if( localStorage != null){
+		if( diff == 0){
+			if( pmp !== pmp ) // Easy check for isNaN
+				pmp = 0;
+			pmp = Math.max( level,pmp );
+			localStorage.setItem("pmp",pmp);
+		}
+		else{
+			if( mdp !== mdp )
+				mdp = 0;
+			mdp = Math.max( level,mdp );
+			localStorage.setItem("mdp",mdp);
+		}
+		}
+		game.state.start('level');
+	}else{
+		gameOver();
+	}
+}
+
+function loadScript( num ){
+	
+	var head = document.getElementsByTagName('head')[0];
+    var script = document.createElement('script');
+	var app;
+    script.type = 'text/javascript';
+	if( diff == 0 )
+		app = "pm/";
+	else
+		app = "md/";
+    script.src = "levels/"+app+num+".js";
+	script.onreadystatechange = doPlay;
+    script.onload = doPlay;
+	head.appendChild(script);
+	level = num;
+	
+}
+
+
+
+// Include all states (At the bottom so that the vars are defined)
+game.state.add('load', load_state);
+game.state.add('menu', menu_state);
+game.state.add('play', play_state);
+game.state.add('level', level_state);
+game.state.start('load');
+
+</script>
+It's like soccer and math combined.  Hit q to return to the menu at any point.  Game by <a href = "http://trevoredwards.github.io"> Trevor Edwards</a>.
+</body>
+</html>

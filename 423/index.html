@@ -1,0 +1,106 @@
+<!doctype html> 
+<html lang="en"> 
+<head> 
+	<meta charset="UTF-8" />
+    <title>423</title>
+	<script type="text/javascript" src="js/phaser.js"></script>
+    <style type="text/css">
+        body {
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+
+<h1>423</h1>
+
+<script type="text/javascript">
+
+var game = new Phaser.Game(640, 480, Phaser.AUTO, '423');
+
+var box;
+var text_style = {
+	font: "30px Arial", 
+	fill: "#ff0000", 
+	align: "center"
+}
+
+var load_state = {
+	
+	preload: function() {
+		game.load.image('box', 'res/thebox.png');
+		game.load.spritesheet('button','res/button.png',96, 64);
+		game.load.audio('corner','res/cornered.wav');
+	},
+		
+	create: function(){
+		game.add.text(game.world.centerX,game.world.centerY,"Loading...", text_style);
+		this.game.state.start('menu');
+	}
+	
+}
+
+var menu_state = {
+	
+	
+	preload: function() {
+	
+	},
+	
+	create: function(){
+		
+		game.add.text(game.world.centerX-150,game.world.centerY-100, 'Press any key to start!', text_style);
+		game.input.keyboard.onDownCallback = function() { this.game.state.start('play');};
+		
+	}
+	
+	
+}
+
+var play_state = {
+	
+	preload: function() {
+	
+	},
+	
+	create: function(){
+		game.input.keyboard.onDownCallback = null;
+		game.physics.startSystem(Phaser.Physics.ARCADE);
+		box = game.add.sprite( Math.floor( Math.random() * (game.world.width - 128) + 64), Math.floor(Math.random() * (game.world.height - 128) + 64 ),'box');
+		game.physics.arcade.enable(box);
+		box.body.collideWorldBounds = true;
+		box.checkWorldBounds = true;
+		box.scale.setTo(64, 64);
+		box.body.bounce.x = 1;
+		box.body.bounce.y = 1;
+		box.body.velocity.x = 128;
+		box.body.velocity.y = 128;
+		box.onEnterBounds = function() { console.log("hi"); };
+		
+	},
+		
+	update: function(){
+		
+		if( box.position.x == 0 || box.position.x == 576 || box.position.y == 0 || Math.floor( box.position.y == 416) )
+			box.tint = (Math.floor(Math.random() * 200 + 55)) << 16 | (Math.floor(Math.random() * 200 + 55)) << 8 | (Math.floor(Math.random() * 200 + 55));
+		if( (box.position.x == 0 && (box.position.y == 0 || Math.floor( box.position.y == 416))) || box.position.x == 576 && (box.position.y == 0 || Math.floor( box.position.y == 416)) ){
+			
+			var soundman = game.add.audio('corner');
+			soundman.play();
+				
+		}
+		
+	}
+	
+}
+
+// Include all states (At the bottom so that the vars are defined)
+game.state.add('load', load_state);
+game.state.add('menu', menu_state);
+game.state.add('play', play_state);
+game.state.start('load');
+
+</script>
+An idle bouncing Box by <a href = "http://trevoredwards.github.io"> Trevor Edwards</a>.  (Will it hit a corner?)
+</body>
+</html>
