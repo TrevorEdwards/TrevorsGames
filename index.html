@@ -1,24 +1,48 @@
 <HTML>
-<Head>
-	<Title> Trevor's Games </Title>
-	<style type="text/css">h1{font-family:"source-sans-pro","Source Sans Pro","Verdana",sans-serif;}body{font-family:"source-serif-pro","Source Serif Pro","Georgia",sans-serif;}</style>
-</Head>
-<p><H1 align ="center">Trevor's Games</H1></p>
-<font face = "arial">
-<Body bgcolor = "bb00aa">
-<section>
-	Welcome to my game site.  Hopefully you are here because I gave you the link, otherwise you shouldn't be here I think.
-	Anyway, here are some wonderful games:
-	<ul>
-		<li><a href = mathcube/index.html>Math Cube</a></li>
-		<li><a href = 423/index.html>423</a></li>
-		<li><a href = youareadot/index.html>You are a dot</a></li>
-	</ul>
-	These games are for private use and are not open for public enjoyment.
-	
-	<br>
-	While you're here, you should sign my <a href = "guestbook.php">guestbook</a>!  Then you'll be famous.
-</section>
-</Body>
-</font>
+	<Head>
+		<Title> Trevor's Games </Title>
+		<!--We never go out of -->
+		<style>
+		@import url(../style.css);
+		</style>
+		<!-- jk -->
+	</Head>
+	<Body bgcolor = "cc0033">
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js" charset="utf-8"></script>
+		<!-- Live fast; die young; bad girls do it well -->
+		<div id="container">
+			<div id="body">
+			<p><h1 align ="center" >Trevor's Games</h1></p>
+				<p><h2>Welcome to my game site!</h2></p>
+				<p >Hopefully you are here because I gave you the link, otherwise you shouldn't be here I think.
+					Anyway, here are some wonderful games:
+				</p>
+				<p>
+					<ul>
+							<li><a href=medusa>Medusa (Coming soon or never)</a></li>
+							<li><a href = mathcube/index.html>Math Cube</a></li>
+							<li><a href = 423/index.html>423</a></li>
+							<li><a href = youareadot/index.html>You are a dot</a></li>
+					</ul>
+			</p>
+				<p>
+					These games are for private use and are not open for public enjoyment.
+				</p>
+			</section>
+		</div>
+		<div id="footer">
+			While you're here, you should <a href = "guestbook.php">sign my guestbook</a>!  Then you'll be famous.
+		</div>
+	</div>
+
+		<script>
+			// Text fadein
+			d3.selectAll("h2,p,ul,#footer").style("opacity",0)
+				.transition()
+				.delay(function(d, i) { return i * 800; })
+				.duration(2000)
+				.style("opacity",1);
+
+		</script>
+	</Body>
 </HTML>
