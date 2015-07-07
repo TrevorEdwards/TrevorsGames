@@ -1,0 +1,42 @@
+<HTML>
+  <head>
+    <title>Medusa</title>
+
+    <style>
+      @import url(../style.css);
+    </style>
+  </head>
+  <body>
+    <h1>Medusa</h1>
+    <section>
+      <p>get</p>
+      <p>ready</p>
+      <p>for</p>
+      <p>mad</p>
+      <p>medusa</p>
+    </section>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js" charset="utf-8"></script>
+
+    <script>
+      //Color the paragraphs because yolo
+      d3.selectAll("p").style("color",function(d,i){
+        return i % 2 ? "#aaa" : "#222";
+      });
+
+      //Fade to black for drama
+      d3.select("body").transition()
+        .duration(10000)
+        .style("background-color","black");
+
+      //Medusamedusamedusa
+      d3.selectAll("p").transition()
+        .delay(function(d, i) { return i * 1000 + 1000; })
+        .duration(500)
+        .style("opacity",0)
+        .transition().duration(500)
+        .style("opacity",1)
+        .text(function() { return "medusa" });
+    </script>
+
+  </body>
+</HTML>

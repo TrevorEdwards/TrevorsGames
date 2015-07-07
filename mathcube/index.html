@@ -56,8 +56,8 @@ var ptr;
 var op = "";
 var localStorage
 var wallgr;
-var pmp = 0;
-var mdp = 0;
+var pmp = 16;
+var mdp = 16;
 var level;
 var maxpm = 16; //Number of pm levels
 var maxmd = 16; //Number of md levels
@@ -73,9 +73,8 @@ var load_state = {
 		
 		try {
 			localStorage = 'localStorage' in window && window['localStorage'] !== null;
-			pmp = localStorage.getItem("pmp");
-			mdp = localStorage.getItem("mdp");
-			console.log (	localStorage);
+			//pmp = localStorage.getItem("pmp");
+			//mdp = localStorage.getItem("mdp");
 		} catch (e) {
 			// nothing
 		}
@@ -286,6 +285,7 @@ function processObj( obj ){
 		drawnObject = wallgr.create(obj.x, obj.y, bmd);
 		drawnObject.anchor.setTo(0.5, 0.5);
 		drawnObject.body.immovable = true;
+		drawnObject.tint = "#777777"
 		} 
 	else if (obj.type == ENT_NUM){
 		
