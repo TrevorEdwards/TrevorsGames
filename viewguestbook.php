@@ -1,3 +1,7 @@
+<style>
+  @import url(../style.css);
+</style>
+
 <table width="400" border="0" align="center" cellpadding="3" cellspacing="0">
 
 <tr>

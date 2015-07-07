@@ -31,7 +31,7 @@
 			</section>
 		</div>
 		<div id="footer">
-			While you're here, you should <a href = "guestbook.php">sign my guestbook</a>!  Then you'll be famous.
+			While you're here, you should <a href = "guestbook.php">sign my guestbook!</a>  Then you'll be famous.
 		</div>
 	</div>
 
@@ -39,9 +39,15 @@
 			// Text fadein
 			d3.selectAll("h2,p,ul,#footer").style("opacity",0)
 				.transition()
-				.delay(function(d, i) { return i * 800; })
+				.delay(function(d, i) { return i * 700 - 1900; })
 				.duration(2000)
 				.style("opacity",1);
+
+			var bod = d3.select('body');
+			bod.on("click", function(){
+				d3.selectAll("h2,p,ul,#footer").transition()
+				.style("opacity",1);
+			});
 
 		</script>
 	</Body>
