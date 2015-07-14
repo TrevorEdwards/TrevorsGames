@@ -1,10 +1,9 @@
-<HTML >
+<HTML>
   <head>
     <title>Drones</title>
 
     <style>
       @import url(../style.css);
-
     </style>
   </head>
   <body style="background-color: black">
@@ -18,47 +17,12 @@
 
       //load data
 
-      //CORS
+      var script = document.createElement('script');
+      script.src = 'http://api.dronestre.am/data?callback=handleData'
+      document.head.appendChild(script).appendChild(script);
 
-            // Create the XHR object.
-      function createCORSRequest(method, url) {
-        var xhr = new XMLHttpRequest();
-        if ("withCredentials" in xhr) {
-          // XHR for Chrome/Firefox/Opera/Safari.
-          xhr.open(method, url, true);
-        } else if (typeof XDomainRequest != "undefined") {
-          // XDomainRequest for IE.
-          xhr = new XDomainRequest();
-          xhr.open(method, url);
-        } else {
-          // CORS not supported.
-          xhr = null;
-        }
-        return xhr;
-      }
-
-      // Make the actual CORS request.
-      function makeCorsRequest() {
-        var url = 'http://api.dronestre.am/data';
-
-        var xhr = createCORSRequest('GET', url);
-        // Response handlers.
-        xhr.onload = function() {
-          data = xhr.responseText;
-          handleData();
-        };
-
-        xhr.onerror = function() {
-          alert('There was an error making a request.');
-        };
-
-        xhr.send();
-      }
-
-      makeCorsRequest();
-
-      function handleData(){
-        data = JSON.parse( data );
+      function handleData( dat){
+        data = dat;
         circleGraphs();
       }
 
