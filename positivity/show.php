@@ -4,5 +4,8 @@
 
 <?php
   $name = $_GET["name"];
-  echo "<h1>Dear ".$name.", you are a great friend!  Thank you for being a great person!</h1>"
+  echo "<h1>Dear <font color=\"gold\">".$name."</font>, you are a great friend!  Thank you for making life wonderful!</h1>"
 ?>
+<HTML>
+	<img src="http://media.giphy.com/media/AUn61ci1RgScg/giphy.gif" alt = "Hi, friend!">
+</HTML>

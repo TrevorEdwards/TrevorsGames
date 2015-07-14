@@ -1,3 +1,9 @@
+<style>
+
+  @import url(../style.css);
+
+</style>
+
 <?php
   $name = $_POST['name'];
   $url = "http://".$_SERVER["SERVER_NAME"]."/positivity/show.php?name=".$name;
