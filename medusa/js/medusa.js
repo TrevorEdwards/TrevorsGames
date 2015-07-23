@@ -47,7 +47,7 @@ var load_state = {
 		game.load.image('doges','res/doges.png');
 		game.load.image('snake','res/thebox.png');
 		game.load.image('cat','res/cat.png');
-		game.load.audio('meow', 'res/meow.wav');
+		game.load.audio('meow', 'res/meow.WAV');
 		game.load.audio('gameover', 'res/gameover.wav');
 
 		meow = game.add.audio('meow');
