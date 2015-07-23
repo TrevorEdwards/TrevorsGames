@@ -1,43 +1,21 @@
-<HTML>
-  <head>
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8" />
     <title>Medusa</title>
-
-    <style>
-      @import url(style.css);
+	<script type="text/javascript" src="js/phaser.js"></script>
+    <style type="text/css">
+        body {
+            margin: 0;
+        }
+			  @import url(../style.css);
     </style>
-  </head>
-  <body>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js" charset="utf-8"></script>
+</head>
+<body>
 
-    <h1>Medusa</h1>
-    <section>
-      <p>get</p>
-      <p>ready</p>
-      <p>for</p>
-      <p>mad</p>
-      <p>medusa</p>
-    </section>
+<h1>Medusa</h1>
 
-    <script>
-      //Color the paragraphs because yolo
-      d3.selectAll("p").style("color",function(d,i){
-        return i % 2 ? "#aaa" : "#222";
-      });
-
-      //Fade to black for drama
-      d3.select("body").transition()
-        .duration(10000)
-        .style("background-color","black");
-
-      //Medusamedusamedusa
-      d3.selectAll("p").transition()
-        .delay(function(d, i) { return i * 1000 + 1000; })
-        .duration(500)
-        .style("opacity",0)
-        .transition().duration(500)
-        .style("opacity",1)
-        .text(function() { return "medusa" });
-    </script>
-
-  </body>
-</HTML>
+<script type="text/javascript" src="js/medusa.js"></script>
+	Game by <a href = "http://trevoredwards.github.io"> Trevor Edwards</a>.
+</body>
+</html>
